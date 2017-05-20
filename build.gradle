@@ -1,4 +1,19 @@
-apply plugin: "java"
+buildscript {
+  ext {
+    versions = [
+        junit: "1.0.0-M4",
+        jupiter: "5.0.0-M4"
+    ]
+  }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath "org.junit.platform:junit-platform-gradle-plugin:${versions.junit}"
+  }
+}
+
+subprojects {
+}
