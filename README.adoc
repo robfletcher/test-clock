@@ -44,21 +44,21 @@ include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTe
 
 You can then:
 
-...Convert the mutable clock to a fixed one (as per `Clock.fixed`):
+...Convert the mutable clock to a fixed one (as per `Clock.fixed`) with `toFixed()`:
 
 [source,java,indent=0]
 ----
 include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=convert-to-fixed]
 ----
 
-...Advance the time represented by the clock:
+...Advance the time represented by the clock with `advanceBy(TemporalAmount)`:
 
 [source,java,indent=0]
 ----
 include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=advance-time]
 ----
 
-...Assign a completely different instant to the clock:
+...Assign a completely different instant to the clock with `instant(Instant)`:
 
 [source,java,indent=0]
 ----
