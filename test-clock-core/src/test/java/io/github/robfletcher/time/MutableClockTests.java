@@ -2,47 +2,57 @@ package io.github.robfletcher.time;
 
 import java.time.Clock;
 import java.time.Duration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static java.time.Clock.fixed;
 import static java.time.Instant.EPOCH;
 import static java.time.ZoneOffset.MAX;
 import static java.time.ZoneOffset.MIN;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class MutableClockTests {
 
-  private MutableClock clock;
-  private Clock fixedClock;
-
-  @BeforeEach
-  void createClock() {
-    clock = new MutableClock();
-    fixedClock = Clock.fixed(clock.instant(), clock.getZone());
-  }
-
   @Test
   void canCompareWithOtherClocks() {
-    assertAll("fixed",
-        () -> assertEquals(clock, fixedClock),
-        () -> assertNotEquals(clock, fixed(clock.instant().plusMillis(1), clock.getZone())),
-        () -> assertNotEquals(clock.withZone(MIN), fixedClock.withZone(MAX))
-    );
+    MutableClock testClock = new MutableClock();
+    Clock fixedClock = testClock.toFixed();
+
+    assertEquals(testClock, fixedClock);
+
+    assertNotEquals(testClock, fixed(testClock.instant().plusMillis(1), testClock.getZone()));
+    assertNotEquals(testClock.withZone(MIN), fixedClock.withZone(MAX));
   }
 
   @Test
   void canAdvanceTime() {
-    clock.advanceBy(Duration.ofHours(1));
-    assertEquals(clock.instant(), fixedClock.instant().plus(Duration.ofHours(1)));
-    clock.advanceBy(Duration.ofHours(1));
-    assertEquals(clock.instant(), fixedClock.instant().plus(Duration.ofHours(2)));
+    // tag::create[]
+    MutableClock testClock = new MutableClock();
+    // end::create[]
+    // tag::convert-to-fixed[]
+    Clock fixedClock = testClock.toFixed();
+    assertEquals(testClock.instant(), fixedClock.instant());
+    // end::convert-to-fixed[]
+
+    // tag::advance-time[]
+    testClock.advanceBy(Duration.ofHours(1));
+    assertEquals(testClock.instant(), fixedClock.instant().plus(Duration.ofHours(1)));
+    // end::advance-time[]
+
+    testClock.advanceBy(Duration.ofHours(1));
+    assertEquals(testClock.instant(), fixedClock.instant().plus(Duration.ofHours(2)));
   }
 
   @Test
   void canChangeInstant() {
-    clock.instant(EPOCH);
-    assertEquals(clock.instant(), EPOCH);
-    clock.instant(fixedClock.instant());
-    assertEquals(clock.instant(), fixedClock.instant());
+    MutableClock testClock = new MutableClock();
+    Clock fixedClock = testClock.toFixed();
+
+    // tag::assign-instant[]
+    testClock.instant(EPOCH);
+    assertEquals(testClock.instant(), EPOCH);
+    // end::assign-instant[]
+
+    testClock.instant(fixedClock.instant());
+    assertEquals(testClock.instant(), fixedClock.instant());
   }
 }

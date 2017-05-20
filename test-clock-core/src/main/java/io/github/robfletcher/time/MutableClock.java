@@ -48,7 +48,7 @@ public class MutableClock extends Clock {
     if (o == null || !(o instanceof Clock)) return false;
     Clock that = (Clock) o;
     return Objects.equals(instant, that.instant()) &&
-        Objects.equals(zone, that.getZone());
+      Objects.equals(zone, that.getZone());
   }
 
   @Override public int hashCode() {
@@ -66,5 +66,9 @@ public class MutableClock extends Clock {
 
   public void instant(@Nonnull Instant newInstant) {
     instant = newInstant;
+  }
+
+  public Clock toFixed() {
+    return Clock.fixed(instant, zone);
   }
 }

@@ -1,0 +1,110 @@
+[quote,Ford Prefect]
+Time is an illusion. Lunchtime doubly so.
+
+== Why do I need this?
+
+Testing things that depend on the current time is annoying.
+
+Testing things that do things after certain time intervals is incredibly annoying.
+
+Java 8's `java.time` package encourages you to inject a `Clock` instance into things that need to generate timestamps.
+All well and good but when you want to write a test like...
+
+[source,gherkin]
+----
+Given some initial state
+ Then things behave thus
+ When x amount of time has passed
+ Then things now behave thus
+----
+
+...you pretty soon discover that all the `Clock` implementations provided by Java are immutable.
+
+=== Why not just use a stub `Clock`?
+
+Sure, you can do that but...
+
+If you stub a sequence of instants the clock will return, your test becomes tightly coupled to the exact number of times your code asks for the current time.
+Insert an innocent new `clock.instant()` call and all your tests break.
+
+Also `java.time.Clock` is an abstract class (even though there's nothing about it that would appear to prevent it just being a Java 8 interface with default methods) and some mocking frameworks don't play nice with classes.
+
+=== Why not just `Thread.sleep` in the test?
+
+ಠ_ಠ
+
+== How do I use this?
+
+Create a mutable clock:
+
+[source,java,indent=0]
+----
+include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=create]
+----
+
+You can then:
+
+...Convert the mutable clock to a fixed one (as per `Clock.fixed`):
+
+[source,java,indent=0]
+----
+include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=convert-to-fixed]
+----
+
+...Advance the time represented by the clock:
+
+[source,java,indent=0]
+----
+include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=advance-time]
+----
+
+...Assign a completely different instant to the clock:
+
+[source,java,indent=0]
+----
+include::test-clock-core/src/test/java/io/github/robfletcher/time/MutableClockTests.java[tags=assign-instant]
+----
+
+=== Can I use this in Kotlin?
+
+Of course.
+Everything's better in Kotlin.
+
+In Kotlin you can:
+
+- Use the `+=` operator to advance the clock's time.
+- Get and set the clock's instant using the `instant` property.
+- Turn any other `Clock` into a mutable clock with the `toMutable()` method.
+
+== What problem were you solving that turned into this?
+
+I was writing a queue that:
+
+1. allows clients to specify "deliver after" time.
+2. re-queues messages that are not acknowledged within a time limit.
+
+So I needed to write tests like:
+
+[source,gherkin]
+----
+Given a message with a delivery time is pushed to the queue
+ When I ask the queue for messages
+ Then I get nothing back
+
+Given a message with a delivery time is pushed to the queue
+  And enough time elapses
+ When I ask the queue for messages
+ Then I get my message back
+
+Given a message is pushed to the queue
+  And I read and acknowledge the message
+  And the acknowledge time limit elapses
+ When I ask the queue for messages
+ Then I get nothing back
+
+Given a message is pushed to the queue
+  And I read the message but never acknowledge it
+  And the acknowledge time limit elapses
+ When I ask the queue for messages
+ Then I get the same message back again
+----

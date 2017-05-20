@@ -1,5 +1,6 @@
 package io.github.robfletcher.time
 
+import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.TemporalAmount
@@ -14,3 +15,8 @@ operator fun MutableClock.plusAssign(amount: TemporalAmount) = advanceBy(amount)
 var MutableClock.instant: Instant
   get() = instant()
   set(value) = instant(value)
+
+fun Clock.toMutable() = when (this) {
+  is MutableClock -> this
+  else -> MutableClock(instant(), zone)
+}
