@@ -35,7 +35,13 @@ Also `java.time.Clock` is an abstract class (even though there's nothing about i
 
 == How do I use this?
 
-Create a mutable clock:
+Create a seam in your class-under-test where you can inject a `Clock`.
+When running the application for real you'd inject `Clock.systemDefaultZone()` or `Clock.systemUTC()` or whatever.
+In tests you instead inject a `MutableClock`.
+
+A `MutableClock` is pretty simple.
+
+You can create one, optionally giving it an `Instant` and/or `ZoneId` (`Instant.now()` and `ZoneId.systemDefault()` are the defaults if you don't specify):
 
 [source,java,indent=0]
 ----
