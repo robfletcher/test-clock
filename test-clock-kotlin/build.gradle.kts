@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.4.21"
+    id("test-clock-conventions")
 }
 repositories {
     mavenCentral()
